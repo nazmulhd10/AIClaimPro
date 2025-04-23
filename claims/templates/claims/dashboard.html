@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>AI Claim Pro Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+      body {
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+      }
+      main {
+        flex: 1;
+      }
+      .sidebar {
+        height: 100vh;
+        position: sticky;
+        top: 0;
+        padding-top: 1rem;
+      }
+      .nav-link:hover {
+        background-color:rgb(10, 61, 19);
+        color: white;
+        font-weight: bold;
+      }
+      .table td, .table th {
+        vertical-align: middle;
+      }
+    </style>
+  </head>
+  <body class="bg-light">
+
+    <!-- Top Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom shadow-sm sticky-top">
+      <div class="container-fluid">
+        <a class="navbar-brand fw-bold text-primary" href="/">AI Claim Pro</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <form class="d-flex mx-auto w-100 px-2" style="max-width: 600px;">
+            <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
+            <button class="btn btn-outline-success" type="submit">Search</button>
+          </form>
+          <ul class="navbar-nav ms-auto">
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                {{ request.user.username }}
+              </a>
+              <ul class="dropdown-menu dropdown-menu-end">
+                <li><a class="dropdown-item" href="/profile/">Profile</a></li>
+                <li><a class="dropdown-item" href="/logout/">Logout</a></li>
+              </ul>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Main Content with Sidebar -->
+    <main class="container-fluid">
+      <div class="row">
+
+        <!-- Sidebar -->
+        <nav class="col-md-4 col-lg-3 d-md-block bg-white sidebar shadow-sm border-end">
+          <div class="position-sticky">
+            <ul class="nav flex-column">
+              <li class="nav-item"><a class="nav-link" href="/submit_claim/">📝 Submit Claim</a></li>
+              <li class="nav-item"><a class="nav-link" href="/claim_history/">📜 Claim History & Audit Log</a></li>
+              <li class="nav-item"><a class="nav-link" href="#">✅ Eligibility Validation</a></li>
+              <li class="nav-item"><a class="nav-link" href="#">📄 Contract Data Verification</a></li>
+              <li class="nav-item"><a class="nav-link" href="#">📊 Benefit Usage Tracking</a></li>
+              <li class="nav-item"><a class="nav-link" href="#">❌ Auto Claim Rejection</a></li>
+              <li class="nav-item"><a class="nav-link" href="#">🩺 Medical Rule Validation</a></li>
+              <li class="nav-item"><a class="nav-link" href="#">🔐 Role-Based Access Control (RBAC)</a></li>
+              <li class="nav-item"><a class="nav-link" href="#">🔗 API Integration</a></li>
+              <li class="nav-item"><a class="nav-link" href="#">📧 Automated Notifications</a></li>
+              <li class="nav-item"><a class="nav-link" href="#">🤖 AI-based Claim Prediction</a></li>
+              <li class="nav-item"><a class="nav-link" href="/chat/">👤 Chat</a></li>
+              <li class="nav-item"><a class="nav-link" href="/submit_claim_contract_document/">📁 Contract Document</a></li>
+              <li class="nav-item"><a class="nav-link" href="/profile/">👤 Profile</a></li>
+              <li class="nav-item mt-3"><a class="btn btn-outline-danger w-100" href="/logout/">🚪 Logout</a></li>
+            </ul>
+          </div>
+        </nav>
+
+        <!-- Content Area -->
+        <div class="col-md-8 ms-sm-auto col-lg-9 px-md-4 pt-4">
+          <h1 class="h2 text-center mb-3">Welcome, {{ request.user.username }}!</h1>
+          <h4 class="mb-3">Recent Claims</h4>
+
+          {% if claims %}
+          <div class="table-responsive">
+            <table class="table table-hover table-bordered align-middle">
+              <thead class="table-light">
+                <tr>
+                  <th scope="col">Claim ID</th>
+                  <th scope="col">Submission Date</th>
+                  <th scope="col">Description</th>
+                  <th scope="col">User</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for claim in claims|slice:":5" %}
+                <tr>
+                  <td>{{ claim.claim_id }}</td>
+                  <td>{{ claim.submission_date }}</td>
+                  <td>{{ claim.description|truncatechars:50 }}</td>
+                  <td>{{ claim.user }}</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+          <a href="/claim_history/">View All Claims</a>
+          {% else %}
+          <div class="alert alert-info">You have not submitted any claims yet.</div>
+          {% endif %}
+        </div>
+
+      </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white text-center text-muted py-3 border-top">
+      <small>© 2025 AI Claim Pro Dashboard. All rights reserved.</small>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/js/bootstrap.bundle.min.js"></script>
+  </body>
+</html>

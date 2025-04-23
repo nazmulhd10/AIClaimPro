@@ -1,0 +1,114 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Register | AIClaimPro</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: #f0f2f5;
+        }
+        .form-container {
+            max-width: 600px;
+            margin: 50px auto;
+            background: white;
+            padding: 40px;
+            border-radius: 16px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        .form-title {
+            margin-bottom: 30px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="form-container">
+        <h3 class="form-title text-center">Create Your Account</h3>
+        <form method="post" novalidate>
+            {% csrf_token %}
+
+            <!-- Username -->
+            <div class="mb-3">
+                <label for="id_username" class="form-label">Username</label>
+                <input type="text" name="username" id="id_username" class="form-control" value="{{ form.username.value|default_if_none:'' }}" required>
+                {% for error in form.username.errors %}
+                    <div class="text-danger small">{{ error }}</div>
+                {% endfor %}
+            </div>
+
+            <!-- Email -->
+            <div class="mb-3">
+                <label for="id_email" class="form-label">Email Address</label>
+                <input type="email" name="email" id="id_email" class="form-control" value="{{ form.email.value|default_if_none:'' }}" required>
+                {% for error in form.email.errors %}
+                    <div class="text-danger small">{{ error }}</div>
+                {% endfor %}
+            </div>
+
+            <!-- Password -->
+            <div class="mb-3">
+                <label for="id_password1" class="form-label">Password</label>
+                <input type="password" name="password1" id="id_password1" class="form-control" required>
+                {% for error in form.password1.errors %}
+                    <div class="text-danger small">{{ error }}</div>
+                {% endfor %}    
+            </div>
+
+            <!-- Confirm Password -->
+            <div class="mb-3">
+                <label for="id_password2" class="form-label">Confirm Password</label>
+                <input type="password" name="password2" id="id_password2" class="form-control" required>
+                {% for error in form.password2.errors %}
+                    <div class="text-danger small">{{ error }}</div>
+                {% endfor %}
+            </div>
+
+            <!-- IMID -->
+            <div class="mb-3">
+                <label for="id_imid" class="form-label">Insurance Member ID (IMID)</label>
+                <div class="input-group">
+                    <input type="text" name="imid" id="id_imid" class="form-control" value="{{ form.imid.value|default_if_none:'' }}" required>
+                    <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#imidModal">VERIFY ID</button>
+                </div>
+                {% for error in form.imid.errors %}
+                    <div class="text-danger small">{{ error }}</div>
+                {% endfor %}
+            </div>
+            
+
+            <!-- Phone -->
+            <div class="mb-3">
+                <label for="id_phone_number" class="form-label">Phone Number</label>
+                <input type="text" name="phone_number" id="id_phone_number" class="form-control" value="{{ form.phone_number.value|default_if_none:'' }}" required>
+                {% for error in form.phone_number.errors %}
+                    <div class="text-danger small">{{ error }}</div>
+                {% endfor %}
+            </div>
+
+            <!-- Submit -->
+            <button type="submit" class="btn btn-primary w-100">Register Now</button>
+
+            <!-- General form errors -->
+            {% if form.non_field_errors %}
+                <div class="alert alert-danger mt-3">
+                    {% for error in form.non_field_errors %}
+                        <div>{{ error }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+        </form>
+
+        <div class="mt-3 text-center">
+            Already have an account? <a href="{% url 'login' %}">Login here</a>
+        </div>
+    </div>
+</div>
+
+<!-- Optional JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

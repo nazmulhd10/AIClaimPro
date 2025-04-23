@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Claim Details</title>
+</head>
+<body>
+    <h1>Claim Details</h1>
+
+    <p><strong>Claim ID:</strong> {{ claim.claim_id }}</p>
+    <p><strong>Submission Date:</strong> {{ claim.submission_date }}</p>
+    <p><strong>Incident Date:</strong> {{ claim.incident_date|default:"N/A" }}</p>
+    <p><strong>Location:</strong> {{ claim.location|default:"N/A" }}</p>
+    <p><strong>Consultation:</strong> {{ claim.consultation|default:"N/A" }}</p>
+    <p><strong>Medication:</strong> {{ claim.medication|default:"N/A" }}</p>
+    <p><strong>Others:</strong> {{ claim.others|default:"N/A" }}</p>
+    <p><strong>Amount Claimed:</strong> {{ claim.total_claim_amount|default:"N/A" }}</p>
+    <p><strong>Description:</strong></p>
+    <p>{{ claim.description }}</p>
+
+    {% if claim.medical_record %}
+        <p><strong>Medical Record:</strong> <a href="{{ claim.medical_record.url }}" target="_blank">Download</a></p>
+    {% endif %}
+
+    <br>
+    <a href="{% url 'claim_history' %}">Back to Claim History</a>
+    <br>
+    <a href="{% url 'dashboard' %}">Back to Dashboard</a>
+</body>
+</html>

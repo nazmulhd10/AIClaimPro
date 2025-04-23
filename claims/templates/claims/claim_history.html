@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Your Claim History</title>
+</head>
+<body>
+    <h1>Your Claim History</h1>
+
+    <form method="get">
+        {{ filter_form.as_p }}
+        <button type="submit">Filter</button>
+    </form>
+
+    {% if claims %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Claim ID</th>
+                    <th>Submission Date (Local)</th>
+                    <th>Incident Date (Local)</th>
+                    <th>Location</th>
+                    <th>Hospital/Clinic/Provider</th>
+                    <th>Amount Claimed</th>
+                    <th>Description</th>
+                    <th>Medical Record</th>
+                    <th>Document List</th>
+                    <th>Actions</th> {# নতুন কলাম #}
+                </tr>
+            </thead>
+            <tbody>
+                {% for claim in claims %}
+                    <tr>
+                        <td>{{ claim.claim_id }}</td>
+                        <td>{{ claim.submission_date }}</td>
+                        <td>{{ claim.incident_date|default:"N/A" }}</td>
+                        <td>{{ claim.location|default:"N/A" }}</td>
+                        <td>{{ claim.hospital_clinic_provider_name|default:"N/A" }}</td>
+                        <td>{{ claim.total_claim_amount|default:"N/A" }}</td>
+                        <td>{{ claim.description|truncatechars:100 }}</td>
+                        <td>
+                            {% if claim.medical_record %}
+                                <a href="{{ claim.medical_record.url }}" target="_blank">Download</a>
+                            {% else %}
+                                N/A
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if claim.documents.exists %}
+                                {% for doc in claim.documents.all %}
+                                    <a href="{{ doc.document.url }}" target="_blank">Download</a><br>
+                                {% endfor %}
+                            {% else %}
+                                N/A
+                            {% endif %}
+                        </td>
+                        
+                        
+                        <td><a href="{% url 'view_claim' claim.claim_id %}">View Details</a></td> {# বিস্তারিত দেখার লিঙ্ক #}
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>You have not submitted any claims yet.</p>
+    {% endif %}
+    <br>
+    <a href="{% url 'dashboard' %}">Back to Dashboard</a>
+</body>
+</html>

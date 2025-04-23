@@ -1,0 +1,46 @@
+# Python and Django specific
+*.pyc
+__pycache__/
+*.pyo
+*.pyd
+.Python
+*.log
+*.pid
+*.seed
+*.sqlite3
+db.sqlite3
+migrations/*
+!migrations/__init__.py
+
+# Virtual environment
+venv/
+env/
+.env
+*.env
+
+# Django settings and sensitive data
+local_settings.py
+settings.py
+*.secret
+*.key
+
+# Static and media files
+# staticfiles/
+# media/
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Miscellaneous
+.DS_Store
+*.bak
+*.cache
+*.prof
+
+# chroma_db
+chroma_db/
+vectors/

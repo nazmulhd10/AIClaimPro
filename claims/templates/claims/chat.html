@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Chatbot</title>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script>
+        async function askQuestion() {
+            const message = document.getElementById("message").value;
+            const responseDiv = document.getElementById("response");
+            responseDiv.innerHTML = "Loading...";
+
+            const formData = new URLSearchParams();
+            formData.append("message", message);
+
+            const response = await fetch("/chat/", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded",
+                    "X-CSRFToken": "{{ csrf_token }}"
+                },
+                body: formData
+            });
+
+            const data = await response.json();
+            responseDiv.innerHTML = marked.parse(data.response);  // Markdown rendered
+        }
+    </script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            max-width: 700px;
+        }
+        textarea {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        #response {
+            margin-top: 20px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+<body>
+    <h1>AI Chatbot</h1>
+    <textarea id="message" rows="4" placeholder="Enter your question here..."></textarea><br>
+    <button onclick="askQuestion()">Ask</button>
+    <div id="response"></div>
+</body>
+</html>

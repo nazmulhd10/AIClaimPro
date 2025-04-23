@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>User Profile</title>
+</head>
+<body>
+    <h1>Your Profile</h1>
+    <p>Username: {{ request.user.username }}</p>
+    <p>Email: {{ request.user.email }}</p>
+    <p>IMID: {{ user_profile.imid|default:"Not provided" }}</p>
+    <p>Phone Number: {{ user_profile.phone_number|default:"Not provided" }}</p>
+    <p>Address: {{ user_profile.address|default:"Not provided" }}</p>
+    <p>Timezone: {{ user_profile.timezone|default:"Not set" }}</p>
+    <a href="/profile/edit/">Edit Profile</a>
+    <br>
+    <a href="/dashboard/">Back to Dashboard</a>
+</body>
+</html>

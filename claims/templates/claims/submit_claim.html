@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Submit Claim</title>
+    <!-- Bootstrap CSS লিঙ্ক -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+    <div class="container mt-5">
+        <div class="card shadow-sm">
+            <div class="card-header bg-primary text-white">
+                <h2 class="text-center">Submit a New Claim</h2>
+            </div>
+            <div class="card-body">
+                <form method="post" enctype="multipart/form-data" class="needs-validation" novalidate>
+                    {% csrf_token %}
+
+                    <div class= "row">
+
+                        <div class="col-md-12 mb-3">
+                            <div class="form-group row align-items-center">
+                                <label for="id_claim_type" class="col-sm-1 col-form-label"><b>Claim Type</b></label>
+                                <div class="col-sm-11 d-flex align-items-center gap-3">
+                                    {% for radio in form.claim_type %}
+                                        <div class="form-check form-check-inline mb-0">
+                                            {{ radio.tag }}
+                                            <label class="form-check-label ms-1" for="{{ radio.id_for_label }}">
+                                                {{ radio.choice_label }}
+                                            </label>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        
+
+                        <div class="col-md-4 mb-3">
+                            <div class="form-group">
+                                <label for="id_admission_date" class="form-label"><b>Admission/Visit Date</b></label>
+                                {{ form.admission_date }}
+                            </div>
+                        </div>
+
+                        <div class="col-md-4 mb-3">
+                            <div class="form-group">
+                                <label for="id_incident_date" class="form-label"><b>Incident Date</b></label>
+                                {{ form.incident_date }}
+                            </div>
+                        </div>
+
+                        <div class="col-md-4 mb-3">
+                            <div class="form-group">
+                                <label for="id_location" class="form-label"><b>Incident Location</b></label>
+                                {{ form.location }}
+                            </div>
+                        </div>
+
+                        <div class="col-md-9 mb-3">
+                            <div class="form-group">
+                                <label for="id_hospital_clinic_provider_name" class="form-label"><b>Hospital/Clinic/Provider name</b></label>
+                                <select name="hospital_clinic_provider_name" id="id_hospital_clinic_provider_name" class="form-control">
+                                    {% for item in form.hospital_clinic_provider_name.field.choices %}
+                                        <option value="{{ item.hospname }}">{{ item.hospname }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="col-md-3 mb-3">
+                            <div class="form-group">
+                                <label for="id_attachment" class="form-label"><b>Document List (Select Multiple) </b></label>
+                                <input type="file" class="form-control" id="id_attachment" name="file[]" multiple>
+                            </div>
+                        </div>
+
+                        <div class="col-md-3 mb-3">
+                            <div class="form-group">
+                                <label for="id_consultation" class="form-label"><b>Consultation</b></label>
+                                {{ form.consultation }}
+                            </div>
+                        </div>
+
+                        <div class="col-md-3 mb-3">
+                            <div class="form-group">
+                                <label for="id_medication" class="form-label"><b>Medication</b></label>
+                                {{ form.medication }}
+                            </div>
+                        </div>
+
+                        <div class="col-md-3 mb-3">
+                            <div class="form-group">
+                                <label for="id_others" class="form-label"><b>Others</b></label>
+                                {{ form.others }}
+                            </div>
+                        </div>
+
+                        <div class="col-md-3 mb-3">
+                            <div class="form-group">
+                                <label for="id_total_claim_amount" class="form-label"><b>Total Claim Amount</b></label>
+                                {{ form.total_claim_amount }}
+                            </div>
+                        </div>
+
+                        <div class="col-md-12 mb-3">
+                            <div class="form-group">
+                                <label for="id_description" class="form-label"><b>Description</b></label>
+                                {{ form.description }}
+                            </div>
+                        </div>
+
+                        {% comment %} <div class="col-md-6 mb-3">
+                            <div class="form-group">
+                                <label for="id_attachment" class="form-label"><b>Upload documents</b></label>
+                                {{ form.medical_record }}
+                            </div>
+                        </div> {% endcomment %}
+
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-4"></div>
+                        <div class="col-md-4">
+                            <button type="submit" class="btn btn-success w-100">Submit Claim</button>
+                        </div>
+                        <div class="col-md-4"></div>
+                    </div>
+                    
+                </form>
+            </div>
+            <div class="card-footer text-center">
+                <a href="/dashboard/" class="btn btn-link">Back to Dashboard</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Function to calculate total claim amount
+        function calculateTotal() {
+            // Get values from the input fields
+            const consultation = parseFloat(document.getElementById('id_consultation').value) || 0;
+            const medication = parseFloat(document.getElementById('id_medication').value) || 0;
+            const others = parseFloat(document.getElementById('id_others').value) || 0;
+    
+            // Calculate total
+            const total = consultation + medication + others;
+    
+            // Update the total_claim_amount field
+            document.getElementById('id_total_claim_amount').value = total.toFixed(2);
+        }
+    
+        // Add event listeners to the input fields
+        document.getElementById('id_consultation').addEventListener('input', calculateTotal);
+        document.getElementById('id_medication').addEventListener('input', calculateTotal);
+        document.getElementById('id_others').addEventListener('input', calculateTotal);
+    </script>
+
+    <!-- Bootstrap JS (Optional) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
