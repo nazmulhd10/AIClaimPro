@@ -1,6 +1,8 @@
+import json
 import traceback
 from django.http import JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
+import requests
 
 from claims.models import Claim, ClaimContractDocument, ClaimDocument, UserProfile
 # from claims.services.chatbot_engine import get_response_from_query
@@ -9,10 +11,27 @@ from claims.services.RAG.chat_service import create_qa_chain, get_answer
 from claims.services.RAG.init_embeddings import build_initial_vector_store
 from claims.services.ask_service import get_answer_from_query
 from claims.services.claim_processor import ClaimProcessor
+from claims.utils import fetch_member_info_by_memberId
 from .forms import ClaimContractDocumentSubmissionForm, ClaimSubmissionForm, CustomUserCreationForm, LoginForm, RegistrationForm, UserProfileForm
 from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_exempt
+
+
+def verify_imid(request):
+    """Verify IMID via API call."""
+    if request.method == "POST":
+        org_id = request.POST.get("org_id")
+        offset = request.POST.get("offset")
+        limit = request.POST.get("limit")
+        mem_id = request.POST.get("mem_id")
+
+        # Call the utility function
+        result = fetch_member_info_by_memberId(org_id, offset, limit, mem_id)
+        return JsonResponse(result, safe=False)  # Return the API response as JSON
+
+    return JsonResponse({"error": "Invalid request method"}, status=400)
+
 
 def register(request):
     if request.method == "POST":
@@ -162,15 +181,82 @@ def claim_history(request):
     return render(request, 'claims/claim_history.html', {'claims': claims})
 
 @login_required
+def eligibility_validation(request):
+    # claims = Claim.objects.filter(user=request.user).order_by('-submission_date')
+    # return render(request, 'claims/eligibility_validation.html', {'claims': claims})
+    claims = Claim.objects.filter(user=request.user).order_by('-submission_date')
+    return render(request, 'claims/eligibility_validation.html', {'claims': claims})
+    # return render(request, 'claims/eligibility_validation.html')
+
+@login_required
 def submit_claim_contract_documents(request):
     if request.method == 'POST':
         form = ClaimContractDocumentSubmissionForm(request.POST, request.FILES)
 
         if form.is_valid():
             try:
+                # Save the contract document
                 contract_document = form.save(commit=False)
                 contract_document.user = request.user
                 contract_document.save()
+
+                # ✅ Webhook Call Start
+                webhook_url = "http://localhost:5678/webhook-test/83483438-c3a0-4a35-ba55-5f9b38ead927"
+
+                # Fetch file information from the uploaded file in request.FILES
+                uploaded_file = request.FILES['contract_documents']
+                
+                upload_image = [
+                    {
+                        'filename': uploaded_file.name,  # File name from request.FILES
+                        'mimetype': uploaded_file.content_type,  # MIME type from request.FILES
+                        'size': uploaded_file.size  # Size from request.FILES
+                    }
+                ]
+                # print("Upload Image:", upload_image[0]['mimetype'])
+
+
+                # Prepare the data to send to the webhook
+                data = {
+                    'Upload_Image': upload_image,  # Include file information
+                    # 'submittedAt': form.cleaned_data['submittedAt'],  # Add the submission time
+                    'formMode': 'test',  # Keep form mode as test
+                    'mimeType': uploaded_file.content_type,  # MIME type from request.FILES
+                    'document_name': form.cleaned_data['document_name'],  # Document name from the form
+                }
+
+
+                # Combine JSON and file into multipart form-data
+                # multipart_data = {
+                #     'json_data': (None, json.dumps(data), 'application/json'),
+                #     'contract_documents': (uploaded_file.name, uploaded_file, uploaded_file.content_type)
+                # }
+
+                # Define 'files' dictionary to send the file
+                files = {
+                    'contract_documents': (
+                        uploaded_file.name,                     # ফাইলের নাম
+                        uploaded_file.file,                     # ফাইলের বাইনারি কন্টেন্ট (InMemoryUploadedFile or TemporaryUploadedFile)
+                        uploaded_file.content_type              # MIME টাইপ (যেমন 'application/pdf')
+                    )
+                }
+
+
+                try:
+                    # Send the data and file in the webhook request
+                    response = requests.post(webhook_url, data=data, files=files)
+                    # response = requests.post(
+                    #     webhook_url,
+                    #     data=json.dumps(data),  # JSON স্ট্রিং আকারে পাঠাতে হবে
+                    #     headers={'Content-Type': 'application/json'},
+                    #     files=files
+                    # )
+                    print("✅ Webhook Response:", response.status_code, response.text)
+                except Exception as we:
+                    print("🚨 Webhook call failed:", we)
+                # Webhook Call End
+
+                # Redirect to the same page after successful submission
                 return redirect('submit_claim_contract_documents')  # Page reload with fresh data
             except Exception as e:
                 print("💥 Exception occurred while saving contract document:", e)
@@ -192,18 +278,47 @@ def submit_claim_contract_documents(request):
     )
 
 
-vector_store = build_initial_vector_store()
-qa_chain = create_qa_chain(vector_store)
-
 @csrf_exempt
 def chat(request):
     if request.method == "POST":
+        global qa_chain
         query = request.POST.get("message")
         if not query:
             return JsonResponse({"response": "Empty prompt."})
+        if not qa_chain:
+            return JsonResponse({"response": "QA Chain not initialized."})
         answer = get_answer(query, qa_chain)
         return JsonResponse({"response": answer})
     return render(request, "claims/chat.html")
+
+
+# vector_store = build_initial_vector_store()
+# qa_chain = create_qa_chain(vector_store)
+
+# @csrf_exempt
+# def chat(request):
+#     if request.method == "POST":
+#         query = request.POST.get("message")
+#         if not query:
+#             return JsonResponse({"response": "Empty prompt."})
+#         answer = get_answer(query, qa_chain)
+#         return JsonResponse({"response": answer})
+#     return render(request, "claims/chat.html")
+
+vector_store = None
+qa_chain = None
+
+@csrf_exempt
+def initialize_vector_store(request):
+    global vector_store, qa_chain
+    if request.method == "POST":
+        try:
+            vector_store = build_initial_vector_store()
+            qa_chain = create_qa_chain(vector_store)
+            return JsonResponse({"status": "success", "message": "The AI model's intelligence has been successfully updated and optimized."})
+        except Exception as e:
+            return JsonResponse({"status": "error", "message": str(e)})
+    return JsonResponse({"status": "invalid", "message": "Only POST allowed."})
 
 # def chatbot_view(request):
 #     if request.method == "POST":
@@ -223,3 +338,17 @@ def chat(request):
 # def claim_contract_document_list(request):
 #     ClaimContractDocument = ClaimContractDocument.objects.filter(user=request.user).order_by('-submission_date')
 #     return render(request, 'claims/submit_claim_contract_document.html', {'ClaimContractDocuments': ClaimContractDocument})
+
+@csrf_exempt
+def receive_data(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            print("📥 Received data:", data)
+
+            # Data processing logic here
+
+            return JsonResponse({"message": "Data received successfully!"})
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=400)
+    return JsonResponse({"error": "Invalid request method."}, status=405)

@@ -8,7 +8,7 @@ from .models import Claim, ClaimContractDocument, UserProfile
 
 class CustomUserCreationForm(UserCreationForm):
     imid = forms.CharField(
-        max_length=10,
+        max_length=50,
         required=True,
         label="IMID",
         help_text="Enter your unique Insurance Member ID."
@@ -123,10 +123,13 @@ class ClaimContractDocumentSubmissionForm(forms.ModelForm):
         widgets = {
             'document_name': forms.TextInput(attrs={
                 'class': 'form-control',
+                'required': 'required',
                 'placeholder': 'Enter the Contract document name'
             }),
 
             'contract_documents': forms.FileInput(attrs={
-                'class': 'form-control'
+                'class': 'form-control',
+                'required': 'required',
+                'placeholder': 'Upload the contract document'
             }),
         }

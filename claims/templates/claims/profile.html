@@ -1,18 +1,21 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>User Profile</title>
-</head>
-<body>
-    <h1>Your Profile</h1>
-    <p>Username: {{ request.user.username }}</p>
-    <p>Email: {{ request.user.email }}</p>
-    <p>IMID: {{ user_profile.imid|default:"Not provided" }}</p>
-    <p>Phone Number: {{ user_profile.phone_number|default:"Not provided" }}</p>
-    <p>Address: {{ user_profile.address|default:"Not provided" }}</p>
-    <p>Timezone: {{ user_profile.timezone|default:"Not set" }}</p>
-    <a href="/profile/edit/">Edit Profile</a>
-    <br>
-    <a href="/dashboard/">Back to Dashboard</a>
-</body>
-</html>
+{% extends "base.html" %}
+{% block title %}Profile {% endblock %}
+{% block content %}
+    <div class="container mt-4">
+        <h2>User Profile</h2>
+        <div class="card">
+            <div class="card-body">
+                <p><strong>Username:</strong> {{ request.user.username }}</p>
+                <p><strong>Email:</strong> {{ request.user.email }}</p>
+                <p><strong>IMID:</strong> {{ user_profile.imid|default:"Not provided" }}</p>
+                <p><strong>Phone Number:</strong> {{ user_profile.phone_number|default:"Not provided" }}</p>
+                <p><strong>Address:</strong> {{ user_profile.address|default:"Not provided" }}</p>
+                <p><strong>Timezone:</strong> {{ user_profile.timezone|default:"Not set" }}</p>
+                {% comment %} <a href="{% url 'edit_profile' %}" class="btn btn-primary">Edit Profile</a> {% endcomment %}
+                <a href="/profile/edit/">Edit Profile</a>
+                <br>
+                <a href="/dashboard/">Back to Dashboard</a>
+            </div>
+        </div>
+    </div>
+{% endblock %}
