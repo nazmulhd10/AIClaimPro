@@ -12,13 +12,16 @@ urlpatterns = [
     path('profile/', views.profile_view, name='profile'),
     path('profile/edit/', views.profile_edit, name='profile_edit'),
     path('submit_claim/', views.submit_claim, name='submit_claim'),
-    path('submit_claim_contract_document/', views.submit_claim_contract_documents, name='submit_claim'),
+    path('submit_claim_contract_document/', views.submit_claim_contract_documents, name='submit_claim_contract_documents'),
     path('claim_submitted_success/', views.claim_submitted_success, name='claim_submitted_success'),
     path('claim_history/', views.claim_history, name='claim_history'),
     path('claim/<str:claim_id>/', views.view_claim, name='view_claim'), # নতুন URL প্যাটার্ন
-    # path("chat/", views.chat_view, name="chat"),
-    # path("chat/", views.chatbot_view, name="chatbot"),
+    path('eligibility_validation/', views.eligibility_validation, name='eligibility_validation'),
     path('chat/', views.chat, name='chatbot'),
+    path("verify-imid/", views.verify_imid, name="verify_imid"),
+    path('initialize-vector-store/', views.initialize_vector_store, name='initialize_vector_store'),
+
+    path('api/receive-data/', views.receive_data, name='receive_data'),
 ]
 
 from django.conf import settings

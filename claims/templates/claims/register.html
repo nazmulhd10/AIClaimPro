@@ -71,8 +71,9 @@
                 <label for="id_imid" class="form-label">Insurance Member ID (IMID)</label>
                 <div class="input-group">
                     <input type="text" name="imid" id="id_imid" class="form-control" value="{{ form.imid.value|default_if_none:'' }}" required>
-                    <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#imidModal">VERIFY ID</button>
+                    <button type="button" id="id_button_verifyId" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#imidModal" onclick="verifyIMID()">VERIFY ID</button>
                 </div>
+                <div id="imid-result" class="mt-2"></div>
                 {% for error in form.imid.errors %}
                     <div class="text-danger small">{{ error }}</div>
                 {% endfor %}
@@ -89,7 +90,7 @@
             </div>
 
             <!-- Submit -->
-            <button type="submit" class="btn btn-primary w-100">Register Now</button>
+            <button type="submit" id="register-btn" class="btn btn-primary w-100" disabled>Register Now</button>
 
             <!-- General form errors -->
             {% if form.non_field_errors %}
@@ -107,6 +108,77 @@
         </div>
     </div>
 </div>
+
+<!-- Modal for IMID verification -->
+<script>
+    async function verifyIMID() {
+        const imid = document.getElementById("id_imid").value;
+        const orgId = imid.substring(0, 4); // প্রথম ৪টি ডিজিট কেটে org_id বানানো
+        const id_button_verifyId = document.getElementById("id_button_verifyId");
+        const resultDiv = document.getElementById("imid-result");
+        const id_phone_number = document.getElementById("id_phone_number");
+        const registerBtn = document.getElementById("register-btn");
+    
+        // Clear previous result
+        resultDiv.innerHTML = "";
+        registerBtn.disabled = true; // Disable the button by default
+    
+        if (!imid) {
+            resultDiv.innerHTML = '<div class="text-danger">Please enter an IMID.</div>';
+            id_button_verifyId.classList.remove("btn-success");
+            id_button_verifyId.classList.add("btn-danger");
+            return;
+        }
+    
+        try {
+            const response = await fetch("{% url 'verify_imid' %}", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded",
+                    "X-CSRFToken": "{{ csrf_token }}"
+                },
+                body: new URLSearchParams({
+                    org_id: orgId,
+                    offset: "100",
+                    limit: "2",
+                    mem_id: imid
+                })
+            });
+    
+            const data = await response.json();
+    
+            if (data.error) {
+                resultDiv.innerHTML = `<div class="text-danger">${data.error}</div>`;
+                id_button_verifyId.classList.remove("btn-success");
+                id_button_verifyId.classList.add("btn-danger");
+                registerBtn.disabled = true; // Keep the button disabled if there's an error
+            } else if (data.length > 0) {
+                if (data[0].delete_status === "A") {
+                    resultDiv.innerHTML = `<div class="text-success">IMID Verified</div>`;
+                    id_phone_number.value = data[0].mobile || ""; // Set phone number if available
+                    id_button_verifyId.classList.remove("btn-danger");
+                    id_button_verifyId.classList.add("btn-success");
+                    registerBtn.disabled = false; // Enable the button if data is valid
+                } else {
+                    resultDiv.innerHTML = `<div class="text-danger">IMID is inactive or not valid.</div>`;
+                    id_button_verifyId.classList.remove("btn-success");
+                    id_button_verifyId.classList.add("btn-danger");
+                    registerBtn.disabled = true; // Keep the button disabled if inactive
+                }
+            } else {
+                resultDiv.innerHTML = `<div class="text-danger">Data not found</div>`;
+                id_button_verifyId.classList.remove("btn-success");
+                id_button_verifyId.classList.add("btn-danger");
+                registerBtn.disabled = true; // Keep the button disabled if no data is found
+            }
+        } catch (error) {
+            resultDiv.innerHTML = `<div class="text-danger">An error occurred: ${error.message}</div>`;
+            id_button_verifyId.classList.remove("btn-success");
+            id_button_verifyId.classList.add("btn-danger");
+            registerBtn.disabled = true; // Keep the button disabled if there's an error
+        }
+    }
+</script>
 
 <!-- Optional JS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>

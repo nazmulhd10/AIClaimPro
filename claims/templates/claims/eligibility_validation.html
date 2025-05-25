@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+{% block title %} Eligibility Validation {% endblock %}
+{% block content %}
+
+<div class="card mb-3">
+    <div class="card-header bg-success text-white">
+        <h1 class="h2 text-center mb-3">Eligibility Validation</h1>
+        <p class="text-center">Validate your claims and ensure they meet the necessary criteria.</p>
+    </div>
+    <div class="card-body">
+
+        {% if claims %}
+        <div class="table-responsive">
+        <table class="table table-hover table-bordered align-middle">
+            <thead class="table-light">
+            <tr>
+                <th>Claim ID</th>
+                <th>Submission Date</th>
+                <th>Description</th>
+                <th>Status</th>
+                <th>Action</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for claim in claims|slice:":5" %}
+            <tr>
+                <td>{{ claim.claim_id }}</td>
+                <td>{{ claim.submission_date }}</td>
+                <td>{{ claim.description|truncatechars:50 }}</td>
+                <td>Not Validated</td>
+                <td><button class="btn btn-primary" >Validate</button></td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        </div>
+        <a href="/dashboard/">Back To Dashboard</a>
+        {% else %}
+        <div class="alert alert-info">You have not submitted any claims yet.</div>
+        {% endif %}
+    </div>
+</div>
+
+<div class="card mb-3">
+    <div class="card-header bg-primary text-white">
+        <h4 class="text-center">Claim Validation Status</h4>
+    </div>
+
+    <div class="card-body">
+            
+        {% if claim %}
+        <div class="table-responsive">
+            <table class="table table-hover table-bordered align-middle">
+                <thead class="table-light">
+                <tr>
+                    <th>Claim ID</th>
+                    <th>Status</th>
+                    <th>Eligibility</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td>{{ claim.id }}</td>
+                    <td>{{ claim.status }}</td>
+                    <td>{{ claim.eligibility }}</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        
+        {% elif error %}
+        <div class="alert alert-danger" role="alert">
+            {{ error }}
+        </div>
+    
+        {% else %}
+        <div class="alert alert-info">No validation status available.</div>
+        {% endif %}
+    </div>
+    
+</div>
+
+
+{% comment %} <div class="container">
+    <h1>Eligibility Validation</h1>
+    <form method="post" action="{% url 'claims:eligibility_validation' %}">
+        {% csrf_token %}
+        <div class="form-group">
+            <label for="claim_id">Claim ID:</label>
+            <input type="text" class="form-control" id="claim_id" name="claim_id" required>
+        </div>
+        <button type="submit" class="btn btn-primary">Validate</button>
+    </form>
+
+    {% if claim %}
+        <h2>Claim Details</h2>
+        <p><strong>Claim ID:</strong> {{ claim.id }}</p>
+        <p><strong>Status:</strong> {{ claim.status }}</p>
+        <p><strong>Eligibility:</strong> {{ claim.eligibility }}</p>
+    {% endif %}
+
+    {% if error %}
+        <div class="alert alert-danger" role="alert">
+            {{ error }}
+        </div>
+    {% endif %}
+</div> {% endcomment %}
+{% endblock %}

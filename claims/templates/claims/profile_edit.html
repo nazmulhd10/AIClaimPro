@@ -1,16 +1,18 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Edit Profile</title>
-</head>
-<body>
-    <h1>Edit Your Profile</h1>
-    <form method="post">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit">Save Changes</button>
-    </form>
-    <br>
-    <a href="/profile/">Cancel</a>
-</body>
-</html>
+{% extends "base.html" %}
+{% block title %}Profile {% endblock %}
+{% block content %}
+    <div class="container mt-4">
+        <h2>User Profile</h2>
+        <div class="card">
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    {{ form.as_p }}
+                    <button type="submit">Save Changes</button>
+                </form>
+                <br>
+                <a href="/profile/">Cancel</a>
+            </div>
+        </div>
+    </div>
+{% endblock %}
