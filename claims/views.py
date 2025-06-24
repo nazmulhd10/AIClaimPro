@@ -11,7 +11,7 @@ from claims.services.RAG.chat_service import create_qa_chain, get_answer
 from claims.services.RAG.init_embeddings import build_initial_vector_store
 from claims.services.ask_service import get_answer_from_query
 from claims.services.claim_processor import ClaimProcessor
-from claims.utils import fetch_member_info_by_memberId
+from claims.utils import fetch_existing_claim_settlement_list, fetch_member_info_by_memberId
 from .forms import ClaimContractDocumentSubmissionForm, ClaimSubmissionForm, CustomUserCreationForm, LoginForm, RegistrationForm, UserProfileForm
 from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
@@ -166,6 +166,53 @@ def submit_claim(request):
 
     return render(request, 'claims/submit_claim.html', {'form': form})
 
+@login_required
+def recheck_existing_claim(request):
+    # This view is for rechecking existing claims
+    getData = fetch_existing_claim_settlement_list()
+    if "error" in getData:
+        return render(request, "claims/recheck_existing_claim.html", {"error": getData["error"]})
+    existing_claim = getData
+    print("Existing Claims Response:", getData)
+    return render(request, 'claims/recheck_existing_claim.html', {'existing_claim': existing_claim})
+
+@csrf_exempt
+def ajax_existing_claims(request):
+    if request.method == "POST":
+        draw = int(request.POST.get("draw", 1))
+        per_page = int(request.POST.get("per-page", 10))
+        page = int(request.POST.get("page", 1))
+        search_value = request.POST.get("search", "")
+        order_by = request.POST.get("order-by", "claimno")
+        sort_dir = request.POST.get("sort-dir", "asc")
+
+        # Combine ordering field and direction
+        full_order_by = f"{'' if sort_dir == 'asc' else '-'}{order_by}"
+
+        # Call the API
+        api_response = fetch_existing_claim_settlement_list(
+            limit=per_page,
+            search_value=search_value,
+            order_by=full_order_by,
+            current_page=page
+        )
+
+        data = api_response.get("data", [])
+        print("API Data is:==================", len(data))
+        total = api_response.get("total", len(data))
+
+        return JsonResponse({
+            "draw": draw,
+            "recordsTotal": total,
+            "recordsFiltered": total,
+            "data": data
+        })
+
+    return JsonResponse({"error": "Invalid request"}, status=400)
+
+
+
+    
 @login_required
 def view_claim(request, claim_id):
     claim = get_object_or_404(Claim, claim_id=claim_id, user=request.user)

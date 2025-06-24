@@ -133,4 +133,28 @@
 
 {% endblock %}
 
+{% block scripts %}
+<script>
+        // Function to calculate total claim amount
+        function calculateTotal() {
+            // Get values from the input fields
+            const consultation = parseFloat(document.getElementById('id_consultation').value) || 0;
+            const medication = parseFloat(document.getElementById('id_medication').value) || 0;
+            const others = parseFloat(document.getElementById('id_others').value) || 0;
+    
+            // Calculate total
+            const total = consultation + medication + others;
+    
+            // Update the total_claim_amount field
+            document.getElementById('id_total_claim_amount').value = total.toFixed(2);
+        }
+    
+        // Add event listeners to the input fields
+        document.getElementById('id_consultation').addEventListener('input', calculateTotal);
+        document.getElementById('id_medication').addEventListener('input', calculateTotal);
+        document.getElementById('id_others').addEventListener('input', calculateTotal);
+    </script>
+
+{% endblock %}
+
 
