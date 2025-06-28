@@ -111,14 +111,14 @@ def profile_edit(request):
 
 def login_view(request):
     if request.method == 'POST':
-        form = LoginForm(request, data=request.POST)
+        form = LoginForm(request.POST)
         if form.is_valid():
-            user = form.get_user()
-            login(request, user)
+            login(request, form.get_user())
             return redirect('dashboard')
     else:
         form = LoginForm()
     return render(request, 'claims/login.html', {'form': form})
+
 
 def logout_view(request):
     logout(request)

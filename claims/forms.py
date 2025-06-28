@@ -2,6 +2,7 @@ from django import forms
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.core.exceptions import ValidationError
+from django.contrib.auth import authenticate
 
 from claims.utils import fetch_hospital_list
 from .models import Claim, ClaimContractDocument, UserProfile
@@ -39,8 +40,42 @@ class RegistrationForm(UserCreationForm):
         model = UserCreationForm.Meta.model
         fields = UserCreationForm.Meta.fields + ('email',)
 
-class LoginForm(AuthenticationForm):
-    pass
+class LoginForm(forms.Form):
+    username_or_email = forms.CharField(label='Username or Email')
+    password = forms.CharField(label='Password', widget=forms.PasswordInput)
+    
+    def __init__(self, *args, **kwargs):
+        self.user_cache = None
+        super().__init__(*args, **kwargs)
+
+    def clean(self):
+        username_or_email = self.cleaned_data.get('username_or_email')
+        password = self.cleaned_data.get('password')
+
+        if not username_or_email or not password:
+            raise ValidationError("Both fields are required.")
+
+        user = None
+        if '@' in username_or_email:
+            try:
+                user_obj = User.objects.get(email__iexact=username_or_email)
+                username = user_obj.get_username()
+                user = authenticate(username=username, password=password)
+            except User.DoesNotExist:
+                pass
+        else:
+            user = authenticate(username=username_or_email, password=password)
+
+        if user is None:
+            raise ValidationError("Invalid credentials.")
+        if not user.is_active:
+            raise ValidationError("This account is inactive.")
+
+        self.user_cache = user
+        return self.cleaned_data
+
+    def get_user(self):
+        return self.user_cache
 
 class UserProfileForm(forms.ModelForm):
     class Meta:

@@ -31,11 +31,12 @@
         <form method="post" novalidate>
             {% csrf_token %}
 
-            <!-- Username -->
+            <!-- Username or Email -->
             <div class="mb-3">
-                <label for="id_username" class="form-label">Username</label>
-                <input type="text" name="username" id="id_username" class="form-control" value="{{ form.username.value|default_if_none:'' }}" required>
-                {% for error in form.username.errors %}
+                <label for="id_username_or_email" class="form-label">Username or Email</label>
+                <input type="text" name="username_or_email" id="id_username_or_email" class="form-control"
+                       value="{{ form.username_or_email.value|default_if_none:'' }}" required>
+                {% for error in form.username_or_email.errors %}
                     <div class="text-danger small">{{ error }}</div>
                 {% endfor %}
             </div>
@@ -60,7 +61,6 @@
                     {% endfor %}
                 </div>
             {% endif %}
-
         </form>
 
         <div class="mt-3 text-center">
