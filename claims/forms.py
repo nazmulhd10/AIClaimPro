@@ -5,6 +5,7 @@ from django.core.exceptions import ValidationError
 
 from claims.utils import fetch_hospital_list
 from .models import Claim, ClaimContractDocument, UserProfile
+#For testing 
 
 class CustomUserCreationForm(UserCreationForm):
     imid = forms.CharField(
