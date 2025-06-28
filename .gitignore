@@ -19,8 +19,8 @@ env/
 *.env
 
 # Django settings and sensitive data
-local_settings.py
-settings.py
+# local_settings.py
+# settings.py
 *.secret
 *.key
 

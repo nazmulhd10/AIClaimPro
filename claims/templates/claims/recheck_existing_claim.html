@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+
+{% block title %}Existing Claim List{% endblock %}
+
+{% block content %}
+<div class="card shadow-sm">
+    <div class="card-header bg-primary text-white">
+        <h2 class="text-center">Existing Claim List</h2>
+    </div>
+    <div class="card-body">
+        <table id="existing_claim_list" class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Claim No</th>
+                    <th>Member ID</th>
+                    <th>Intimation No</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    $(document).ready(function () {
+        var table = $('#existing_claim_list').DataTable({
+            processing: true,
+            serverSide: true,
+            ajax: {
+                url: "{% url 'ajax_existing_claims' %}",
+                type: "POST",
+                dataSrc: 'data',
+                data: function (d) {
+                    // ✅ Pagination এবং ordering parameters mapping
+                    let orderColumnIndex = d.order[0].column;
+                    let orderColumnName = d.columns[orderColumnIndex].data;
+                    let orderDir = d.order[0].dir;
+
+                    // ✅ Calculate current page
+                    let currentPage = Math.floor(d.start / d.length) + 1;
+                    console.log("Current Page:", currentPage);
+
+                    return {
+                        "per-page": d.length,
+                        "page": currentPage,
+                        "order-by": orderColumnName,
+                        "sort-dir": orderDir,
+                        "search": d.search.value,
+                        "draw": d.draw
+                    };
+                },
+                beforeSend: function (xhr) {
+                    xhr.setRequestHeader("X-CSRFToken", "{{ csrf_token }}");
+                }
+            },
+            columns: [
+                { data: "claimno" },
+                { data: "membr_id" },
+                { data: "intimno" },
+                { data: "status" },
+                {
+                    data: null,
+                    orderable: false,
+                    searchable: false,
+                    render: function (data, type, row) {
+                        return `
+                            <button class="btn btn-sm btn-info view-btn" data-id="${row.claimno}">View</button>
+                            <button class="btn btn-sm btn-warning edit-btn" data-id="${row.claimno}">Edit</button>
+                            <button class="btn btn-sm btn-danger delete-btn" data-id="${row.claimno}">Delete</button>
+                        `;
+                    }
+                }
+            ]
+        });
+
+        $('#existing_claim_list').on('click', '.view-btn', function () {
+            const id = $(this).data('id');
+            alert("View: " + id);
+            // অথবা window.location.href = `/claim/view/${id}`;
+        });
+
+        $('#existing_claim_list').on('click', '.edit-btn', function () {
+            const id = $(this).data('id');
+            alert("Edit: " + id);
+            // অথবা window.location.href = `/claim/edit/${id}`;
+        });
+
+        $('#existing_claim_list').on('click', '.delete-btn', function () {
+            const id = $(this).data('id');
+            if (confirm("Are you sure to delete claim " + id + "?")) {
+                // AJAX delete call here
+            }
+        });
+
+    });
+</script>
+{% endblock %}
+
