@@ -33,7 +33,7 @@
 
             <!-- Identifier (Username, Email, Phone Number, or Insurance Member ID) -->
             <div class="mb-3">
-                <label for="id_identifier" class="form-label">Username, Email, Phone Number, or Insurance Member ID</label>
+                <label for="id_identifier" class="form-label">Username or Email or Phone Number or IMID</label>
                 <input type="text" name="identifier" id="id_identifier" class="form-control"
                        value="{{ form.identifier.value|default_if_none:'' }}" required>
                 {% for error in form.identifier.errors %}

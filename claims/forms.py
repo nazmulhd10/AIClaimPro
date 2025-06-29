@@ -279,7 +279,7 @@ class RegistrationForm(UserCreationForm):
 
 
 class LoginForm(forms.Form):
-    identifier = forms.CharField(label='Username, Email, Phone Number, or Insurance Member ID')
+    identifier = forms.CharField(label='Username or Email or Phone Number or IMID')
     password = forms.CharField(label='Password', widget=forms.PasswordInput)
     
     def __init__(self, *args, **kwargs):
