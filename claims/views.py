@@ -17,6 +17,7 @@ from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_exempt
 
+#modified codes
 
 def verify_imid(request):
     """Verify IMID via API call."""
